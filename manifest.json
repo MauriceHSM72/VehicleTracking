@@ -1,0 +1,25 @@
+{
+  "name": "AutoTrack – Vehicle Maintenance",
+  "short_name": "AutoTrack",
+  "description": "Track vehicle maintenance, repairs, and service reminders",
+  "start_url": "./vehicle-tracker.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1e293b",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "maskable"
+    }
+  ]
+}

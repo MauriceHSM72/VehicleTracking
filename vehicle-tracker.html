@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AutoTrack">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" id="ati" href="icon.svg">
+<title>AutoTrack - Vehicle Maintenance</title>
+<style>
+:root {
+  --primary: #2563eb; --primary-dark: #1d4ed8;
+  --bg: #f1f5f9; --surface: #fff; --border: #e2e8f0;
+  --text: #1e293b; --muted: #64748b;
+  --danger: #ef4444; --warning: #f59e0b; --success: #22c55e;
+  --sidebar: #1e293b; --sidebar-text: #94a3b8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+#sidebar{width:240px;background:var(--sidebar);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.s-logo{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.s-logo h1{color:#fff;font-size:18px;font-weight:700}
+.s-logo p{color:var(--sidebar-text);font-size:12px;margin-top:2px}
+.s-label{padding:16px 16px 6px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#475569}
+.s-item{display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--sidebar-text);cursor:pointer;border-radius:6px;margin:2px 8px;font-size:14px;transition:background .15s,color .15s}
+.s-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.s-item.active{background:var(--primary);color:#fff}
+.s-icon{font-size:16px;width:20px;text-align:center}
+.s-add{display:flex;align-items:center;gap:8px;padding:8px 16px;margin:4px 8px;color:#60a5fa;cursor:pointer;border-radius:6px;font-size:13px;transition:background .15s}
+.s-add:hover{background:rgba(255,255,255,.07)}
+#main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.ph{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ph h2{font-size:20px;font-weight:600}
+.pc{padding:24px;flex:1}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-hdr h3{font-size:15px;font-weight:600}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:24px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px}
+.stat .lbl{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.stat .val{font-size:26px;font-weight:700;margin-top:4px}
+.stat .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.vc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:box-shadow .2s,border-color .2s}
+.vc:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);border-color:var(--primary)}
+.vc-hdr{display:flex;align-items:flex-start;justify-content:space-between}
+.vc-title{font-size:16px;font-weight:600}
+.vc-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.vc-stats{display:flex;gap:16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.vc-st .v{font-size:15px;font-weight:600}
+.vc-st .l{font-size:11px;color:var(--muted)}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+.bd{background:#fef2f2;color:#dc2626}
+.bw{background:#fffbeb;color:#d97706}
+.bs{background:#f0fdf4;color:#16a34a}
+.bi{background:#eff6ff;color:#2563eb}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border)}
+td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fafc}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:background .15s}
+.bp{background:var(--primary);color:#fff}.bp:hover{background:var(--primary-dark)}
+.bo{background:transparent;border:1px solid var(--border);color:var(--text)}.bo:hover{background:var(--bg)}
+.bdn{background:var(--danger);color:#fff}.bdn:hover{background:#dc2626}
+.sm{padding:5px 10px;font-size:12px}
+.ico-btn{padding:6px;border-radius:6px;background:transparent;border:1px solid var(--border);cursor:pointer;color:var(--muted);transition:background .15s,color .15s;font-size:14px}
+.ico-btn:hover{background:var(--bg);color:var(--text)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fgrp{display:flex;flex-direction:column;gap:6px}
+.fgrp.full{grid-column:1/-1}
+label{font-size:13px;font-weight:500}
+input,select,textarea{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);background:#fff;outline:none;transition:border-color .15s;font-family:inherit;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+textarea{resize:vertical;min-height:70px}
+.mb{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mh{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.mh h3{font-size:18px;font-weight:600}
+.mbody{padding:20px 24px}
+.mf{padding:0 24px 20px;display:flex;justify-content:flex-end;gap:10px}
+.xbtn{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);padding:4px 8px;border-radius:4px}
+.xbtn:hover{background:var(--bg)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab{padding:10px 16px;cursor:pointer;font-size:14px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.tab:hover:not(.active){color:var(--text)}
+.empty{text-align:center;padding:48px 24px;color:var(--muted)}
+.empty .ei{font-size:48px;margin-bottom:12px}
+.empty h3{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px}
+.empty p{font-size:14px;margin-bottom:20px}
+.ri{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.ri:last-child{border-bottom:none}
+.ri-info h4{font-size:14px;font-weight:500}
+.ri-info p{font-size:12px;color:var(--muted);margin-top:2px}
+.vdh{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;display:flex;align-items:center;gap:20px}
+.vdh-icon{font-size:48px}
+.vdh-info h2{font-size:22px;font-weight:700}
+.vdh-info p{color:var(--muted);font-size:14px;margin-top:4px}
+.vdh-stats{display:flex;gap:32px;margin-left:auto}
+.vdh-st .v{font-size:20px;font-weight:600}
+.vdh-st .l{font-size:12px;color:var(--muted)}
+#toast{position:fixed;bottom:24px;right:24px;background:#1e293b;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;z-index:9999;transform:translateY(100px);opacity:0;transition:transform .3s,opacity .3s}
+#toast.show{transform:translateY(0);opacity:1}
+.pbar{height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:6px}
+.pbar-fill{height:100%;border-radius:999px;transition:width .3s}
+@media(max-width:768px){#sidebar{display:none}.fg{grid-template-columns:1fr}.vdh-stats{display:none}.g2{grid-template-columns:1fr}}
+
+/* ── PWA / iOS mobile ── */
+*{-webkit-tap-highlight-color:transparent}
+body{overscroll-behavior:none}
+input,select,textarea{font-size:16px!important} /* prevent iOS auto-zoom */
+#main{padding-top:env(safe-area-inset-top,0px)}
+.ph{padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+
+#mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#1e293b;border-top:1px solid rgba(255,255,255,.1);padding-bottom:env(safe-area-inset-bottom,0px);z-index:200;-webkit-overflow-scrolling:touch}
+#mobile-nav-inner{display:flex;overflow-x:auto;scrollbar-width:none}
+#mobile-nav-inner::-webkit-scrollbar{display:none}
+.mnav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 14px 6px;min-width:64px;color:#94a3b8;cursor:pointer;font-size:10px;gap:3px;flex-shrink:0;transition:color .15s;-webkit-user-select:none;user-select:none}
+.mnav-item .mi{font-size:22px;line-height:1}
+.mnav-item.active{color:#60a5fa}
+.mnav-add{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 14px 6px;min-width:64px;color:#60a5fa;cursor:pointer;font-size:10px;gap:3px;flex-shrink:0;-webkit-user-select:none;user-select:none}
+.mnav-add .mi{font-size:24px;line-height:1}
+
+@media(max-width:768px){
+  #mobile-nav{display:block}
+  #main{padding-bottom:calc(68px + env(safe-area-inset-bottom,0px))}
+  .pc{padding:14px}
+  .ph{padding-top:12px;padding-bottom:12px;flex-wrap:wrap;gap:8px}
+  .ph h2{font-size:17px}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+  .stat .val{font-size:20px}
+  .stat{padding:12px 14px}
+  .vgrid{grid-template-columns:1fr;gap:12px}
+  .vc{padding:14px}
+  th,td{padding:8px 10px}
+  table{font-size:13px}
+  .btn{padding:8px 12px;font-size:13px}
+  .vdh{padding:16px;gap:12px}
+  .vdh-icon{font-size:36px}
+  .vdh-info h2{font-size:18px}
+}
+</style>
+</head>
+<body>
+<div id="sidebar">
+  <div class="s-logo"><h1>🔧 AutoTrack</h1><p>Vehicle Maintenance</p></div>
+  <div class="s-label">Navigation</div>
+  <div class="s-item" id="nav-dash" onclick="nav('dashboard')"><span class="s-icon">📊</span>Dashboard</div>
+  <div class="s-label">Vehicles</div>
+  <div id="vnav"></div>
+  <div class="s-add" onclick="openVehicleModal()"><span>＋</span> Add Vehicle</div>
+</div>
+<div id="main"><div id="view"></div></div>
+<div id="toast"></div>
+<div id="mobile-nav">
+  <div id="mobile-nav-inner">
+    <div class="mnav-item" id="mnav-dash" onclick="nav('dashboard')">
+      <div class="mi">📊</div><span>Home</span>
+    </div>
+    <div id="mnav-vehicles" style="display:contents"></div>
+    <div class="mnav-add" onclick="openVehicleModal()">
+      <div class="mi">＋</div><span>Add</span>
+    </div>
+  </div>
+</div>
+<script>
+// ── DATA ──────────────────────────────────────────────────────
+const DB={
+  get:k=>{try{return JSON.parse(localStorage.getItem('at_'+k))||[]}catch{return[]}},
+  set:(k,v)=>localStorage.setItem('at_'+k,JSON.stringify(v)),
+  vehicles:()=>DB.get('vehicles'), setVehicles:v=>DB.set('vehicles',v),
+  logs:()=>DB.get('logs'), setLogs:v=>DB.set('logs',v),
+  reminders:()=>DB.get('reminders'), setReminders:v=>DB.set('reminders',v),
+};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const $c=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const $m=n=>Number(n||0).toLocaleString()+' mi';
+const $d=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';
+const vLabel=v=>`${v.year} ${v.make} ${v.model}`;
+const vEmoji=t=>({car:'🚗',truck:'🚛',suv:'🚙',motorcycle:'🏍️',van:'🚐',other:'🚘'})[t]||'🚗';
+
+// ── STATE ─────────────────────────────────────────────────────
+let view='dashboard', vid=null, tab='history';
+function nav(v,id=null){view=v;vid=id;tab='history';renderSidebar();renderView()}
+function setTab(t){tab=t;renderView()}
+
+// ── SIDEBAR ───────────────────────────────────────────────────
+function renderSidebar(){
+  const vs=DB.vehicles();
+  document.getElementById('vnav').innerHTML=vs.map(v=>
+    '<div class="s-item '+(view==='vehicle'&&vid===v.id?'active':'')+'" onclick="nav(\'vehicle\',\''+v.id+'\')">'
+    +'<span class="s-icon">'+vEmoji(v.type)+'</span>'
+    +'<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+v.year+' '+v.make+'</span>'
+    +'</div>').join('');
+  const d=document.getElementById('nav-dash');
+  if(d)d.className='s-item'+(view==='dashboard'?' active':'');
+  // Mobile bottom nav
+  const mv=document.getElementById('mnav-vehicles');
+  if(mv)mv.innerHTML=vs.map(v=>
+    '<div class="mnav-item '+(view==='vehicle'&&vid===v.id?'active':'')+'" onclick="nav(\'vehicle\',\''+v.id+'\')">'
+    +'<div class="mi">'+vEmoji(v.type)+'</div>'
+    +'<span style="max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+v.make+'</span>'
+    +'</div>').join('');
+  const md=document.getElementById('mnav-dash');
+  if(md)md.className='mnav-item'+(view==='dashboard'?' active':'');
+}
+
+// ── VIEWS ─────────────────────────────────────────────────────
+function renderView(){
+  document.getElementById('view').innerHTML=
+    view==='dashboard'?renderDash():
+    view==='vehicle'?renderVehicle():'';
+}
+
+function renderDash(){
+  const vs=DB.vehicles(),ls=DB.logs();
+  const total=ls.reduce((s,l)=>s+(+l.cost||0),0);
+  const od=overdueList(),up=upcomingList();
+  return`
+<div class="ph"><h2>Dashboard</h2>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn bo sm" onclick="importData()" title="Import backup file">📥 Import</button>
+    <button class="btn bo sm" onclick="exportData()" title="Export backup file">📤 Export</button>
+    <button class="btn bp" onclick="openVehicleModal()">＋ Add Vehicle</button>
+  </div>
+</div>
+<input type="file" id="import-input" accept=".json" style="display:none" onchange="handleImportFile(this)">
+<div class="pc">
+  <div class="stats-grid">
+    <div class="stat"><div class="lbl">Vehicles</div><div class="val">${vs.length}</div><div class="sub">registered</div></div>
+    <div class="stat"><div class="lbl">Total Spent</div><div class="val" style="font-size:20px">${$c(total)}</div><div class="sub">all time</div></div>
+    <div class="stat"><div class="lbl">Service Records</div><div class="val">${ls.length}</div><div class="sub">logged</div></div>
+    <div class="stat"><div class="lbl">Overdue</div><div class="val" style="color:${od.length?'#ef4444':'inherit'}">${od.length}</div><div class="sub">reminders</div></div>
+  </div>
+  ${vs.length===0?`<div class="empty"><div class="ei">🚗</div><h3>No vehicles yet</h3><p>Add your first vehicle to start tracking.</p><button class="btn bp" onclick="openVehicleModal()">＋ Add Vehicle</button></div>`:`
+  <div style="margin-bottom:24px"><h3 style="font-size:15px;font-weight:600;margin-bottom:14px">Your Vehicles</h3>
+  <div class="vgrid">${vs.map(v=>vcCard(v)).join('')}</div></div>`}
+  ${od.length||up.length?`<div class="g2">
+    ${od.length?`<div class="card"><div class="card-hdr"><h3>⚠️ Overdue</h3><span class="badge bd">${od.length}</span></div>
+    ${od.slice(0,5).map(r=>`<div class="ri"><div class="ri-info"><h4>${r.name}</h4><p>${vName(r.vehicleId)} · ${rStatus(r)}</p></div><span class="badge bd">Overdue</span></div>`).join('')}</div>`:''}
+    ${up.length?`<div class="card"><div class="card-hdr"><h3>📅 Upcoming</h3><span class="badge bi">${up.length}</span></div>
+    ${up.slice(0,5).map(r=>`<div class="ri"><div class="ri-info"><h4>${r.name}</h4><p>${vName(r.vehicleId)} · ${rStatus(r)}</p></div><span class="badge bw">Due Soon</span></div>`).join('')}</div>`:''}
+  </div>`:''}
+  ${ls.length?`<div class="card" style="margin-top:24px"><div class="card-hdr"><h3>Recent Activity</h3></div>
+  <div class="tw"><table><thead><tr><th>Date</th><th>Vehicle</th><th>Service</th><th>Mileage</th><th>Cost</th></tr></thead><tbody>
+  ${[...ls].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10).map(l=>`<tr>
+    <td style="white-space:nowrap">${$d(l.date)}</td><td>${vName(l.vehicleId)}</td>
+    <td><span style="font-weight:500">${l.type}</span>${l.description?`<br><span style="font-size:12px;color:var(--muted)">${esc(l.description)}</span>`:''}</td>
+    <td>${l.mileage?$m(l.mileage):'—'}</td><td>${l.cost?$c(l.cost):'—'}</td>
+  </tr>`).join('')}
+  </tbody></table></div></div>`:''}
+</div>`;
+}
+
+function vcCard(v){
+  const ls=DB.logs().filter(l=>l.vehicleId===v.id);
+  const spent=ls.reduce((s,l)=>s+(+l.cost||0),0);
+  const od=overdueList().filter(r=>r.vehicleId===v.id).length;
+  return`<div class="vc" onclick="nav('vehicle','${v.id}')">
+    <div class="vc-hdr"><div><div class="vc-title">${vLabel(v)}</div>
+    <div class="vc-sub">${[v.color,v.vin?'VIN:'+v.vin.slice(-6):null].filter(Boolean).join(' · ')||'No details'}</div></div>
+    <div style="font-size:32px">${vEmoji(v.type)}</div></div>
+    ${od?`<div style="margin-top:10px"><span class="badge bd">⚠ ${od} overdue</span></div>`:''}
+    <div class="vc-stats">
+      <div class="vc-st"><div class="v">${v.currentMileage?Number(v.currentMileage).toLocaleString():'—'}</div><div class="l">Miles</div></div>
+      <div class="vc-st"><div class="v">${ls.length}</div><div class="l">Records</div></div>
+      <div class="vc-st"><div class="v" style="font-size:13px">${$c(spent)}</div><div class="l">Spent</div></div>
+    </div></div>`;
+}
+
+function renderVehicle(){
+  const v=DB.vehicles().find(x=>x.id===vid);
+  if(!v)return'<div class="pc">Vehicle not found.</div>';
+  const ls=DB.logs().filter(l=>l.vehicleId===v.id);
+  const rs=DB.reminders().filter(r=>r.vehicleId===v.id);
+  const spent=ls.reduce((s,l)=>s+(+l.cost||0),0);
+  const body=tab==='history'?tabHistory(ls,v):tab==='reminders'?tabReminders(rs,v):tabStats(ls,v);
+  return`
+<div class="ph">
+  <div style="display:flex;align-items:center;gap:10px"><button class="btn bo sm" onclick="nav('dashboard')">← Back</button><h2>${vLabel(v)}</h2></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn bo sm" onclick="openVehicleModal('${v.id}')">✏️ Edit</button>
+    <button class="btn bp sm" onclick="openLogModal('${v.id}')">＋ Add Service</button>
+  </div>
+</div>
+<div class="pc">
+  <div class="vdh">
+    <div class="vdh-icon">${vEmoji(v.type)}</div>
+    <div class="vdh-info"><h2>${vLabel(v)}</h2>
+      <p>${[v.color,v.vin?'VIN: '+v.vin:null].filter(Boolean).join(' · ')||'No additional details'}</p>
+      ${v.notes?`<p style="margin-top:6px;font-size:13px;color:var(--muted)">${esc(v.notes)}</p>`:''}
+    </div>
+    <div class="vdh-stats">
+      <div class="vdh-st"><div class="v">${v.currentMileage?Number(v.currentMileage).toLocaleString():'—'}</div><div class="l">Miles</div></div>
+      <div class="vdh-st"><div class="v">${ls.length}</div><div class="l">Records</div></div>
+      <div class="vdh-st"><div class="v">${$c(spent)}</div><div class="l">Total Spent</div></div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab ${tab==='history'?'active':''}" onclick="setTab('history')">Service History</div>
+    <div class="tab ${tab==='reminders'?'active':''}" onclick="setTab('reminders')">Reminders (${rs.length})</div>
+    <div class="tab ${tab==='stats'?'active':''}" onclick="setTab('stats')">Stats</div>
+  </div>
+  ${body}
+</div>`;
+}
+
+function tabHistory(ls,v){
+  if(!ls.length)return`<div class="empty"><div class="ei">📋</div><h3>No records yet</h3><p>Log your first service or repair.</p>
+    <button class="btn bp" onclick="openLogModal('${v.id}')">＋ Add Service</button></div>`;
+  const rows=[...ls].sort((a,b)=>b.date.localeCompare(a.date));
+  return`<div class="card"><div class="tw"><table><thead><tr>
+    <th>Date</th><th>Type</th><th>Description</th><th>Mileage</th><th>Cost</th><th>Shop</th><th></th>
+  </tr></thead><tbody>${rows.map(l=>`<tr>
+    <td style="white-space:nowrap">${$d(l.date)}</td>
+    <td><span class="badge bi">${esc(l.type)}</span></td>
+    <td style="max-width:180px">${esc(l.description||'—')}</td>
+    <td>${l.mileage?$m(l.mileage):'—'}</td>
+    <td style="font-weight:500">${l.cost?$c(l.cost):'—'}</td>
+    <td>${esc(l.shop||'—')}</td>
+    <td style="white-space:nowrap">
+      <button class="ico-btn" onclick="openLogModal('${v.id}','${l.id}')" title="Edit">✏️</button>
+      <button class="ico-btn" onclick="delLog('${l.id}')" title="Delete" style="margin-left:4px;color:#ef4444">🗑️</button>
+    </td>
+  </tr>`).join('')}</tbody></table></div></div>`;
+}
+
+function tabReminders(rs,v){
+  return`<div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+    <button class="btn bp sm" onclick="openReminderModal('${v.id}')">＋ Add Reminder</button></div>
+  ${!rs.length?`<div class="empty"><div class="ei">🔔</div><h3>No reminders</h3><p>Set up service intervals to track when maintenance is due.</p>
+    <button class="btn bp" onclick="openReminderModal('${v.id}')">＋ Add Reminder</button></div>`:`
+  <div class="card">${rs.map(r=>{
+    const s=rStatusObj(r,v);
+    return`<div class="ri">
+      <div class="ri-info" style="flex:1">
+        <h4>${esc(r.name)}</h4><p>${rIntervalText(r)}</p>
+        ${s.pct!==null?`<div class="pbar" style="width:200px"><div class="pbar-fill" style="width:${Math.min(s.pct,100)}%;background:${s.pct>=100?'#ef4444':s.pct>=80?'#f59e0b':'#22c55e'}"></div></div>`:''}
+        <p style="margin-top:4px;font-size:12px;color:var(--muted)">${s.msg}</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="badge ${s.bc}">${s.lbl}</span>
+        <button class="ico-btn" onclick="openReminderModal('${v.id}','${r.id}')" title="Edit">✏️</button>
+        <button class="ico-btn" onclick="delReminder('${r.id}')" title="Delete" style="color:#ef4444">🗑️</button>
+      </div>
+    </div>`;}).join('')}</div>`}`;
+}
+
+function tabStats(ls,v){
+  if(!ls.length)return`<div class="empty"><div class="ei">📊</div><h3>No data yet</h3><p>Add service records to see stats.</p></div>`;
+  const total=ls.reduce((s,l)=>s+(+l.cost||0),0);
+  const byType={};ls.forEach(l=>{byType[l.type]=(byType[l.type]||0)+(+l.cost||0)});
+  const byYear={};ls.forEach(l=>{const y=l.date?l.date.slice(0,4):'?';byYear[y]=(byYear[y]||0)+(+l.cost||0)});
+  const mileLogs=[...ls].filter(l=>l.mileage).sort((a,b)=>a.date.localeCompare(b.date));
+  return`<div class="g2">
+    <div class="card"><div class="card-hdr"><h3>Cost by Service Type</h3></div>
+    ${Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([t,c])=>`
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>${esc(t)}</span><span style="font-weight:600">${$c(c)}</span></div>
+        <div class="pbar"><div class="pbar-fill" style="width:${total?c/total*100:0}%;background:var(--primary)"></div></div>
+      </div>`).join('')}</div>
+    <div class="card"><div class="card-hdr"><h3>Annual Spending</h3></div>
+    ${Object.entries(byYear).sort((a,b)=>b[0].localeCompare(a[0])).map(([y,c])=>`
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px">
+        <span>${y}</span><span style="font-weight:600">${$c(c)}</span></div>`).join('')}
+    <div style="display:flex;justify-content:space-between;padding:12px 0 0;font-size:14px;font-weight:700"><span>Total</span><span>${$c(total)}</span></div></div>
+  </div>
+  ${mileLogs.length?`<div class="card" style="margin-top:20px"><div class="card-hdr"><h3>Odometer History</h3></div>
+  <div class="tw"><table><thead><tr><th>Date</th><th>Service</th><th>Odometer</th></tr></thead><tbody>
+  ${mileLogs.map(l=>`<tr><td>${$d(l.date)}</td><td>${esc(l.type)}</td><td style="font-weight:500">${$m(l.mileage)}</td></tr>`).join('')}
+  </tbody></table></div></div>`:''}`;
+}
+
+// ── REMINDERS LOGIC ───────────────────────────────────────────
+function rStatusObj(r,v){
+  const cur=+(v?.currentMileage)||0;
+  const today=new Date();today.setHours(0,0,0,0);
+  let pct=null,msg='',lbl='OK',bc='bs',overdue=false,soon=false;
+  if(r.intervalMiles&&r.lastMileage){
+    const next=+r.lastMileage+ +r.intervalMiles;
+    const left=next-cur;
+    pct=((cur-+r.lastMileage)/+r.intervalMiles)*100;
+    if(left<=0){overdue=true;msg=`${Math.abs(left).toLocaleString()} miles overdue`}
+    else if(left<=500){soon=true;msg=`Due in ${left.toLocaleString()} miles`}
+    else msg=`Due at ${next.toLocaleString()} mi`;
+  }
+  if(r.intervalMonths&&r.lastDate){
+    const last=new Date(r.lastDate+'T00:00:00');
+    const next=new Date(last);next.setMonth(next.getMonth()+ +r.intervalMonths);
+    const days=Math.round((next-today)/86400000);
+    if(days<=0){overdue=true;msg+=(msg?' · ':'')+`${Math.abs(days)}d overdue`}
+    else if(days<=30){soon=true;msg+=(msg?' · ':'')+`Due ${$d(next.toISOString().slice(0,10))} (${days}d)`}
+    else msg=msg||`Next: ${$d(next.toISOString().slice(0,10))}`;
+  }
+  if(!r.intervalMiles&&!r.intervalMonths){msg='No interval set';lbl='Info';bc='bi'}
+  else if(overdue){lbl='Overdue';bc='bd'}
+  else if(soon){lbl='Due Soon';bc='bw'}
+  return{pct,msg,lbl,bc,overdue,soon};
+}
+function rStatus(r){
+  const v=DB.vehicles().find(x=>x.id===r.vehicleId);
+  return rStatusObj(r,v).msg||'—';
+}
+function rIntervalText(r){
+  const p=[];
+  if(r.intervalMiles)p.push(`Every ${Number(r.intervalMiles).toLocaleString()} miles`);
+  if(r.intervalMonths)p.push(`Every ${r.intervalMonths} months`);
+  return p.join(' or ')||'No interval';
+}
+function overdueList(){
+  const vs=DB.vehicles();
+  return DB.reminders().filter(r=>rStatusObj(r,vs.find(v=>v.id===r.vehicleId)).overdue);
+}
+function upcomingList(){
+  const vs=DB.vehicles();
+  return DB.reminders().filter(r=>{const s=rStatusObj(r,vs.find(v=>v.id===r.vehicleId));return s.soon&&!s.overdue});
+}
+function vName(id){const v=DB.vehicles().find(v=>v.id===id);return v?vLabel(v):'Unknown'}
+
+// ── MODALS ────────────────────────────────────────────────────
+let _vid=null,_lid=null,_rid=null; // current edit IDs for each modal type
+function showModal(html){
+  const el=document.createElement('div');
+  el.className='mb';el.id='modal-back';el.innerHTML=html;
+  el.addEventListener('click',e=>{if(e.target===el)closeModal()});
+  document.body.appendChild(el);
+}
+function closeModal(){const el=document.getElementById('modal-back');if(el)el.remove()}
+
+// Vehicle modal
+function openVehicleModal(id){
+  _vid=id||null;
+  const v=_vid?DB.vehicles().find(x=>x.id===_vid):null;
+  const types=['car','truck','suv','van','motorcycle','other'];
+  showModal('<div class="modal">'
+    +'<div class="mh"><h3>'+(v?'Edit':'Add')+' Vehicle</h3><button class="xbtn" onclick="closeModal()">✕</button></div>'
+    +'<div class="mbody"><div class="fg">'
+    +'<div class="fgrp"><label>Year *</label><input id="vy" type="text" value="'+(v?v.year:'')+'" placeholder="2020"></div>'
+    +'<div class="fgrp"><label>Make *</label><input id="vmk" value="'+esc(v?v.make:'')+'" placeholder="Toyota"></div>'
+    +'<div class="fgrp"><label>Model *</label><input id="vmd" value="'+esc(v?v.model:'')+'" placeholder="Camry"></div>'
+    +'<div class="fgrp"><label>Type</label><select id="vt">'+types.map(t=>'<option value="'+t+'"'+(v&&v.type===t?' selected':'')+'>'+t[0].toUpperCase()+t.slice(1)+'</option>').join('')+'</select></div>'
+    +'<div class="fgrp"><label>Color</label><input id="vcl" value="'+esc(v?v.color||'':'')+'" placeholder="Silver"></div>'
+    +'<div class="fgrp"><label>Current Mileage</label><input id="vmi" type="number" value="'+(v&&v.currentMileage?v.currentMileage:'')+'" placeholder="45000"></div>'
+    +'<div class="fgrp full"><label>VIN</label><input id="vvin" maxlength="17" value="'+esc(v?v.vin||'':'')+'" placeholder="1HGBH41JXMN109186"></div>'
+    +'<div class="fgrp full"><label>Notes</label><textarea id="vnt">'+esc(v?v.notes||'':'')+'</textarea></div>'
+    +'</div>'
+    +(v?'<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)"><button class="btn bdn sm" onclick="delVehicle(\''+v.id+'\')">🗑️ Delete Vehicle</button></div>':'')
+    +'</div>'
+    +'<div class="mf"><button class="btn bo" onclick="closeModal()">Cancel</button>'
+    +'<button class="btn bp" onclick="saveVehicle()">'+(v?'Save':'Add Vehicle')+'</button></div>'
+    +'</div>');
+}
+function saveVehicle(){
+  const id=_vid;
+  const year=g('vy').value.trim(),make=g('vmk').value.trim(),model=g('vmd').value.trim();
+  if(!year||!make||!model){toast('Year, Make, and Model are required.');return}
+  const data={year:+year,make,model,type:g('vt').value,color:g('vcl').value.trim(),
+    currentMileage:g('vmi').value?+g('vmi').value:null,
+    vin:g('vvin').value.trim().toUpperCase(),notes:g('vnt').value.trim()};
+  const vs=DB.vehicles();
+  if(id){const i=vs.findIndex(v=>v.id===id);if(i>=0)vs[i]={...vs[i],...data}}
+  else{data.id=uid();vs.push(data)}
+  DB.setVehicles(vs);closeModal();toast(id?'Vehicle updated.':'Vehicle added.');
+  if(!id)nav('vehicle',data.id);else{renderSidebar();renderView()}
+}
+function delVehicle(id){
+  if(!confirm('Delete this vehicle and all its records?'))return;
+  DB.setVehicles(DB.vehicles().filter(v=>v.id!==id));
+  DB.setLogs(DB.logs().filter(l=>l.vehicleId!==id));
+  DB.setReminders(DB.reminders().filter(r=>r.vehicleId!==id));
+  closeModal();toast('Vehicle deleted.');nav('dashboard');
+}
+
+// Log modal
+const STYPES=['Oil Change','Tire Rotation','Tire Replacement','Brake Service','Air Filter',
+  'Cabin Filter','Transmission Service','Coolant Flush','Battery Replacement','Spark Plugs',
+  'Alignment','Inspection','Repair','Detailing','Other'];
+let _logVehicleId=null;
+function openLogModal(vehicleId,logId){
+  _lid=logId||null;
+  _logVehicleId=vehicleId||null;
+  const l=_lid?DB.logs().find(x=>x.id===_lid):null;
+  const today=new Date().toISOString().slice(0,10);
+  const vs=DB.vehicles();
+  const selVid=l?l.vehicleId:vehicleId;
+  showModal('<div class="modal">'
+    +'<div class="mh"><h3>'+(l?'Edit':'Add')+' Service Record</h3><button class="xbtn" onclick="closeModal()">✕</button></div>'
+    +'<div class="mbody"><div class="fg">'
+    +'<div class="fgrp full"><label>Vehicle *</label><select id="lv">'+vs.map(v=>'<option value="'+v.id+'"'+(v.id===selVid?' selected':'')+'>'+vLabel(v)+'</option>').join('')+'</select></div>'
+    +'<div class="fgrp"><label>Date *</label><input id="ld" type="date" value="'+(l?l.date:today)+'"></div>'
+    +'<div class="fgrp"><label>Service Type *</label><select id="lt">'+STYPES.map(t=>'<option'+(t===(l&&l.type)?' selected':'')+'>'+t+'</option>').join('')+'</select></div>'
+    +'<div class="fgrp"><label>Odometer</label><input id="lmi" type="number" value="'+(l&&l.mileage?l.mileage:'')+'" placeholder="45000"></div>'
+    +'<div class="fgrp"><label>Cost ($)</label><input id="lco" type="number" step="0.01" value="'+(l&&l.cost?l.cost:'')+'" placeholder="0.00"></div>'
+    +'<div class="fgrp full"><label>Description</label><input id="lde" value="'+esc(l?l.description||'':'')+'" placeholder="Additional details..."></div>'
+    +'<div class="fgrp full"><label>Shop / Location</label><input id="lsh" value="'+esc(l?l.shop||'':'')+'" placeholder="Jiffy Lube, Home, etc."></div>'
+    +'<div class="fgrp full"><label>Notes</label><textarea id="lnt">'+esc(l?l.notes||'':'')+'</textarea></div>'
+    +'</div></div>'
+    +'<div class="mf"><button class="btn bo" onclick="closeModal()">Cancel</button>'
+    +'<button class="btn bp" onclick="saveLog()">'+(l?'Save':'Save Record')+'</button></div>'
+    +'</div>');
+}
+function saveLog(){
+  const id=_lid;
+  const date=g('ld').value,type=g('lt').value;
+  if(!date||!type){toast('Date and Service Type are required.');return}
+  const vehicleId=g('lv').value;
+  const mileage=g('lmi').value?+g('lmi').value:null;
+  const data={vehicleId,date,type,description:g('lde').value.trim(),
+    mileage,cost:g('lco').value?+g('lco').value:null,
+    shop:g('lsh').value.trim(),notes:g('lnt').value.trim()};
+  if(mileage){
+    const vs=DB.vehicles();const i=vs.findIndex(v=>v.id===vehicleId);
+    if(i>=0&&(!vs[i].currentMileage||mileage>vs[i].currentMileage)){vs[i].currentMileage=mileage;DB.setVehicles(vs)}
+  }
+  const ls=DB.logs();
+  if(id){const i=ls.findIndex(l=>l.id===id);if(i>=0)ls[i]={...ls[i],...data}}
+  else{data.id=uid();ls.push(data)}
+  DB.setLogs(ls);closeModal();toast(id?'Record updated.':'Service record saved.');renderSidebar();renderView();
+}
+function delLog(id){
+  if(!confirm('Delete this service record?'))return;
+  DB.setLogs(DB.logs().filter(l=>l.id!==id));toast('Record deleted.');renderView();
+}
+
+// Reminder modal
+let _remVehicleId=null;
+function openReminderModal(vehicleId,remId){
+  _rid=remId||null;
+  _remVehicleId=vehicleId||null;
+  const r=_rid?DB.reminders().find(x=>x.id===_rid):null;
+  showModal('<div class="modal">'
+    +'<div class="mh"><h3>'+(r?'Edit':'Add')+' Reminder</h3><button class="xbtn" onclick="closeModal()">✕</button></div>'
+    +'<div class="mbody"><div class="fg">'
+    +'<div class="fgrp full"><label>Service Name *</label><input id="rn" value="'+esc(r?r.name||'':'')+'" placeholder="Oil Change, Tire Rotation..."></div>'
+    +'<div class="fgrp"><label>Miles Interval</label><input id="rim" type="number" value="'+(r&&r.intervalMiles?r.intervalMiles:'')+'" placeholder="5000"></div>'
+    +'<div class="fgrp"><label>Months Interval</label><input id="rimo" type="number" value="'+(r&&r.intervalMonths?r.intervalMonths:'')+'" placeholder="6"></div>'
+    +'<div class="fgrp"><label>Last Service Mileage</label><input id="rlm" type="number" value="'+(r&&r.lastMileage?r.lastMileage:'')+'" placeholder="40000"></div>'
+    +'<div class="fgrp"><label>Last Service Date</label><input id="rld" type="date" value="'+(r&&r.lastDate?r.lastDate:'')+'"></div>'
+    +'<div class="fgrp full"><label>Notes</label><textarea id="rnt">'+esc(r?r.notes||'':'')+'</textarea></div>'
+    +'</div>'
+    +'<p style="font-size:12px;color:var(--muted);margin-top:8px">Set miles or months interval (or both) to calculate when service is due.</p></div>'
+    +'<div class="mf"><button class="btn bo" onclick="closeModal()">Cancel</button>'
+    +'<button class="btn bp" onclick="saveReminder()">'+(r?'Save':'Add')+'</button></div>'
+    +'</div>');
+}
+function saveReminder(){
+  const id=_rid, vehicleId=_remVehicleId;
+  const name=g('rn').value.trim();if(!name){toast('Service name is required.');return}
+  const im=g('rim').value?+g('rim').value:null,imo=g('rimo').value?+g('rimo').value:null;
+  if(!im&&!imo){toast('Set a miles or months interval.');return}
+  const data={vehicleId,name,intervalMiles:im,intervalMonths:imo,
+    lastMileage:g('rlm').value?+g('rlm').value:null,
+    lastDate:g('rld').value||null,notes:g('rnt').value.trim()};
+  const rs=DB.reminders();
+  if(id){const i=rs.findIndex(r=>r.id===id);if(i>=0)rs[i]={...rs[i],...data}}
+  else{data.id=uid();rs.push(data)}
+  DB.setReminders(rs);closeModal();toast(id?'Reminder updated.':'Reminder added.');renderView();
+}
+function delReminder(id){
+  if(!confirm('Delete this reminder?'))return;
+  DB.setReminders(DB.reminders().filter(r=>r.id!==id));toast('Reminder deleted.');renderView();
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function g(id){return document.getElementById(id)}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+let toastT;
+function toast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// ── EXPORT / IMPORT ───────────────────────────────────────────
+function exportData(){
+  const data={
+    version:1,
+    exported:new Date().toISOString(),
+    vehicles:DB.vehicles(),
+    logs:DB.logs(),
+    reminders:DB.reminders()
+  };
+  const json=JSON.stringify(data,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toISOString().slice(0,10);
+  a.href=url;
+  a.download='autotrack-backup-'+date+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Data exported successfully.');
+}
+
+function importData(){
+  // Reset input so same file can be re-selected if needed
+  const inp=document.getElementById('import-input');
+  if(inp){inp.value='';inp.click();}
+}
+
+function handleImportFile(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      // Validate basic structure
+      if(!Array.isArray(data.vehicles)||!Array.isArray(data.logs)||!Array.isArray(data.reminders)){
+        toast('Invalid backup file — missing data.');return;
+      }
+      const vCount=data.vehicles.length;
+      const lCount=data.logs.length;
+      const existing=DB.vehicles().length;
+      const msg=existing>0
+        ?'This will REPLACE your '+existing+' existing vehicle(s) with '+vCount+' from the backup. Continue?'
+        :'Import '+vCount+' vehicle(s) and '+lCount+' service record(s)?';
+      if(!confirm(msg))return;
+      DB.setVehicles(data.vehicles);
+      DB.setLogs(data.logs);
+      DB.setReminders(data.reminders);
+      nav('dashboard');
+      toast('Imported '+vCount+' vehicle(s) and '+lCount+' record(s).');
+    }catch(err){
+      toast('Could not read file — make sure it is a valid AutoTrack backup.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+renderSidebar();renderView();
+
+// ── PWA: Canvas apple-touch-icon ──────────────────────────────
+(function(){
+  const c=document.createElement('canvas');
+  c.width=c.height=512;
+  const ctx=c.getContext('2d');
+  function rrect(x,y,w,h,r){
+    ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+    ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);
+    ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);
+    ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);
+    ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+  }
+  // Background
+  ctx.fillStyle='#2563eb';rrect(0,0,512,512,110);ctx.fill();
+  // Car roof
+  ctx.fillStyle='white';rrect(148,160,216,106,22);ctx.fill();
+  // Car body
+  rrect(70,250,372,116,28);ctx.fill();
+  // Windows (dark)
+  ctx.fillStyle='#1d4ed8';rrect(160,172,192,80,14);ctx.fill();
+  // Wheels
+  [157,355].forEach(x=>{
+    ctx.beginPath();ctx.arc(x,380,50,0,Math.PI*2);
+    ctx.fillStyle='#1e293b';ctx.fill();
+    ctx.strokeStyle='white';ctx.lineWidth=18;ctx.stroke();
+    ctx.beginPath();ctx.arc(x,380,18,0,Math.PI*2);
+    ctx.fillStyle='white';ctx.fill();
+  });
+  const el=document.getElementById('ati');
+  if(el)el.href=c.toDataURL('image/png');
+})();
+
+// ── PWA: Service Worker ───────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+
+// ── PWA: iOS install banner ───────────────────────────────────
+(function(){
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone=('standalone' in navigator)&&navigator.standalone;
+  if(isIOS&&!isStandalone&&!sessionStorage.getItem('at_no_install')){
+    const b=document.createElement('div');
+    b.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:9998;'
+      +'background:#1e293b;color:white;padding:12px 16px;'
+      +'padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));'
+      +'font-size:13px;display:flex;align-items:center;gap:10px;'
+      +'border-top:1px solid rgba(255,255,255,.15);box-shadow:0 -4px 20px rgba(0,0,0,.3)';
+    b.innerHTML='<span style="flex:1">📲 Tap <strong>Share ↑</strong> then <strong>"Add to Home Screen"</strong> to install AutoTrack</span>'
+      +'<button onclick="this.parentNode.remove();sessionStorage.setItem(\'at_no_install\',1)" '
+      +'style="background:rgba(255,255,255,.15);border:none;color:white;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;flex-shrink:0">Dismiss</button>';
+    document.body.appendChild(b);
+  }
+})();
+</script>
+</body>
+</html>

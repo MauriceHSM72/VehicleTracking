@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Blue rounded background -->
+  <rect width="512" height="512" rx="110" fill="#2563eb"/>
+  <!-- Car roof -->
+  <rect x="148" y="162" width="216" height="105" rx="22" fill="white"/>
+  <!-- Car body -->
+  <rect x="72" y="252" width="368" height="115" rx="28" fill="white"/>
+  <!-- Left wheel -->
+  <circle cx="158" cy="382" r="50" fill="#2563eb"/>
+  <circle cx="158" cy="382" r="50" fill="none" stroke="white" stroke-width="20"/>
+  <!-- Right wheel -->
+  <circle cx="354" cy="382" r="50" fill="#2563eb"/>
+  <circle cx="354" cy="382" r="50" fill="none" stroke="white" stroke-width="20"/>
+  <!-- Small wrench badge -->
+  <circle cx="400" cy="112" r="58" fill="#1d4ed8"/>
+  <text x="400" y="130" font-size="58" text-anchor="middle" fill="white" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">🔧</text>
+</svg>
