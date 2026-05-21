@@ -224,11 +224,7 @@ function renderDash(){
   const od=overdueList(),up=upcomingList();
   return`
 <div class="ph"><h2>Dashboard</h2>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="btn bo sm" onclick="importData()" title="Import backup file">📥 Import</button>
-    <button class="btn bo sm" onclick="exportData()" title="Export backup file">📤 Export</button>
-    <button class="btn bp" onclick="openVehicleModal()">＋ Add Vehicle</button>
-  </div>
+  <button class="btn bp" onclick="openVehicleModal()">＋ Add Vehicle</button>
 </div>
 <input type="file" id="import-input" accept=".json" style="display:none" onchange="handleImportFile(this)">
 <div class="pc">
@@ -255,6 +251,14 @@ function renderDash(){
     <td>${l.mileage?$m(l.mileage):'—'}</td><td>${l.cost?$c(l.cost):'—'}</td>
   </tr>`).join('')}
   </tbody></table></div></div>`:''}
+  <div class="card" style="margin-top:24px">
+    <div class="card-hdr"><h3>🗄️ Data Backup</h3></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Export your data to back it up or transfer it to another device. Import to restore a backup.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn bp" onclick="exportData()" style="flex:1;min-width:120px;justify-content:center">📤 Export Backup</button>
+      <button class="btn bo" onclick="importData()" style="flex:1;min-width:120px;justify-content:center">📥 Import Backup</button>
+    </div>
+  </div>
 </div>`;
 }
 
