@@ -350,10 +350,24 @@ function tabReminders(rs,v){
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="badge ${s.bc}">${s.lbl}</span>
+        <button class="ico-btn" onclick="markReminderDone('${r.id}','${v.id}')" title="Mark as done" style="color:#16a34a">✓</button>
         <button class="ico-btn" onclick="openReminderModal('${v.id}','${r.id}')" title="Edit">✏️</button>
         <button class="ico-btn" onclick="delReminder('${r.id}')" title="Delete" style="color:#ef4444">🗑️</button>
       </div>
     </div>`;}).join('')}</div>`}`;
+}
+
+function markReminderDone(rid, vehicleId){
+  const today=new Date().toISOString().slice(0,10);
+  const v=DB.vehicles().find(x=>x.id===vehicleId);
+  const rs=DB.reminders();
+  const i=rs.findIndex(r=>r.id===rid);
+  if(i<0)return;
+  rs[i].lastDate=today;
+  if(v&&v.currentMileage)rs[i].lastMileage=v.currentMileage;
+  DB.setReminders(rs);
+  toast('Reminder reset — next interval starts today.');
+  renderView();
 }
 
 function tabStats(ls,v){
@@ -525,7 +539,23 @@ function saveLog(){
   const ls=DB.logs();
   if(id){const i=ls.findIndex(l=>l.id===id);if(i>=0)ls[i]={...ls[i],...data}}
   else{data.id=uid();ls.push(data)}
-  DB.setLogs(ls);closeModal();toast(id?'Record updated.':'Service record saved.');renderSidebar();renderView();
+  DB.setLogs(ls);
+  // Auto-update any reminder whose name matches this service type
+  autoUpdateReminders(vehicleId, type, date, mileage);
+  closeModal();toast(id?'Record updated.':'Service record saved.');renderSidebar();renderView();
+}
+function autoUpdateReminders(vehicleId, serviceType, date, mileage){
+  const rs=DB.reminders();
+  const norm=s=>s.trim().toLowerCase();
+  let changed=false;
+  rs.forEach(r=>{
+    if(r.vehicleId===vehicleId && norm(r.name)===norm(serviceType)){
+      r.lastDate=date;
+      if(mileage)r.lastMileage=mileage;
+      changed=true;
+    }
+  });
+  if(changed)DB.setReminders(rs);
 }
 function delLog(id){
   if(!confirm('Delete this service record?'))return;

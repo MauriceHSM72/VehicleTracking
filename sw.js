@@ -1,4 +1,4 @@
-const CACHE = 'autotrack-v1';
+const CACHE = 'autotrack-v2';
 const FILES = [
   './vehicle-tracker.html',
   './manifest.json',
